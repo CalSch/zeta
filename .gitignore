@@ -1,0 +1,15 @@
+*.lst
+*.sym
+*.lk
+*.noi
+*.map
+*.rel
+*.ihx
+
+out.bin
+emu/main
+
+emu/libz80/
+
+# sdcc generated asm files
+*.asm
