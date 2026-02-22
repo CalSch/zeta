@@ -4,8 +4,11 @@
 #include "emu.h"
 #include "front_rl.h"
 #include <signal.h>
+#include <unistd.h>
+#include <time.h>
 
-unsigned int total_cycles = 0;
+/* #define BATCH_CYCLES 1000*10 */
+/* #define TARGET_HZ (1000*1000*10) // 10mhz */
 
 void sigint_handle(int sig) {
     running = false;
@@ -42,23 +45,51 @@ double get_current_time() {
 int main(int argc, char** argv) {
     double start_time = get_current_time();
     signal(SIGINT,sigint_handle);
+    float target_mhz = 10;
+    unsigned int batch_cycles = 1000*10;
     for (int i=0;i<argc;i++) {
         if (!strcmp(argv[i],"-rom")) {
             load_rom(argv[++i]);
         }
+        else if (!strcmp(argv[i],"-mhz")) target_mhz = atof(argv[++i]);
+        else if (!strcmp(argv[i],"-bc")) batch_cycles = atoi(argv[++i]);
         else if (!strcmp(argv[i],"-dstate")) dbg_state = true;
         else if (!strcmp(argv[i],"-dmr")) dbg_memread = true;
         else if (!strcmp(argv[i],"-dmw")) dbg_memwrite = true;
         else if (!strcmp(argv[i],"-din")) dbg_ioread = true;
         else if (!strcmp(argv[i],"-dout")) dbg_iowrite = true;
     }
+    printf("target_mhz=%f\n",target_mhz);
+    printf("batch_cycles=%d\n",batch_cycles);
     start_raylib();
     setup_sector_table();
     setup_video();
     emu_init();
 
+    struct timespec batch_start, now;
+    clock_gettime(CLOCK_MONOTONIC, &batch_start);
+
     while (running) {
-        emu_tick();
+        unsigned long cycles_before = ctx.tstates;
+        while (ctx.tstates < cycles_before+batch_cycles) {
+            emu_tick();
+        }
+
+        // do sleepy time (thanks claude)
+        long expected_ns = (long)((double)batch_cycles / (target_mhz*1000*1000) * 1e9);
+
+        clock_gettime(CLOCK_MONOTONIC, &now);
+        long elapsed_ns = (now.tv_sec - batch_start.tv_sec) * 1000000000L
+                        + (now.tv_nsec - batch_start.tv_nsec);
+
+        long sleep_ns = expected_ns - elapsed_ns;
+        if (sleep_ns > 0) {
+            struct timespec ts = { 0, sleep_ns };
+            nanosleep(&ts, NULL);
+        }
+        /* printf("sleep_ns=%ld\n",sleep_ns); */
+
+        clock_gettime(CLOCK_MONOTONIC, &batch_start);
     }
 
     double end_time = get_current_time();
