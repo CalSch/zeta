@@ -31,21 +31,26 @@ void putbin(u8 x) {
 		putc((x>>i)&1 ? '1' : '0');
 	}
 }
-void putdec(u16 n_) {
-	u16 n=n_; // sdcc sucks
-    static const u16 powers[] = {10000, 1000, 100, 10, 1};
-    u8 i, digit, leading = 1;
-    for (i = 0; i < 5; i++) {
-        digit = 0;
-        while (n >= powers[i]) {
-            n -= powers[i];
-            digit++;
-        }
-        if (digit || !leading || i == 4) {
-            putc('0' + digit);
-            leading = 0;
-        }
-    }
+void putdec(int n_) {
+	int n=n_; // sdcc sucks
+	if (n<0) {
+		putc('-');
+		putdec(-n);
+		return;
+	}
+	static const u16 powers[] = {10000, 1000, 100, 10, 1};
+	u8 i, digit, leading = 1;
+	for (i = 0; i < 5; i++) {
+		digit = 0;
+		while (n >= powers[i]) {
+			n -= powers[i];
+			digit++;
+		}
+		if (digit || !leading || i == 4) {
+			putc('0' + digit);
+			leading = 0;
+		}
+	}
 }
 
 

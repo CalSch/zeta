@@ -43,3 +43,13 @@ void emu_init();
 void emu_tick();
 
 void print_cpu_state_inline();
+
+
+typedef struct {
+    u16 addr;
+    char name[64];
+} Label;
+
+extern Label debug_labels[1024];
+extern int debug_labels_count;
+char* addr2str(u16 addr);

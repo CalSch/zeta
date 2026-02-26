@@ -4,6 +4,8 @@
 #include "video.h"
 #include "front_rl.h"
 
+void debug_dump();
+
 bool running = true;
 
 Z80Context ctx;
@@ -141,6 +143,8 @@ void iowrite(int param, u16 addr, u8 val) {
 				sector_table[mapper_state[0]] = mapper_state[1] + (mapper_state[2]<<8);
 			}
 		}
+	} else if (addr == 4) {
+		debug_dump();
 	}
 
 	if (dbg_iowrite)
@@ -164,10 +168,10 @@ void emu_tick() {
 
 
 
-char debug_str[300];
+char debug_str[800];
 char dump_str[100];
 char decode_str[100];
-char stack_str[100];
+char stack_str[200];
 
 void print_cpu_state_inline() {
 	// Z80Context ctx = prev_ctx;
@@ -179,11 +183,12 @@ void print_cpu_state_inline() {
 	dont_log_memreads = false ;
 
 	printf(
-		"PC=%04x dump='%s' decode='%s' "
+		"PC=%s dump='%s' decode='%s' "
 		"AF=%04x BC=%04x DE=%04x HL=%04x SP=%04x"
 		"\n"
 		,
-		ctx.PC,
+        addr2str(ctx.PC),
+		/* ctx.PC, */
 		dump_str,
 		decode_str,
 
@@ -194,3 +199,97 @@ void print_cpu_state_inline() {
 		ctx.R1.wr.SP
 	);
 }
+
+
+// Use `debug_str` to store a string of the cpu state
+char* get_cpu_state() {
+	dont_log_memreads = true;
+
+    for (int i=0;i<100;i++) {
+        dump_str[i]=0;
+        decode_str[i]=0;
+        stack_str[i]=0;
+    }
+    memset(debug_str,0,sizeof(debug_str));
+    Z80Debug(&ctx,dump_str,decode_str);
+    char* ptr = stack_str;
+    if (ctx.R1.wr.SP != 0) {
+        // printf("making stack str\n");
+        for (int i=ctx.R1.wr.SP;i<ctx.R1.wr.SP+64;i++) {
+			if (i%0x10 == 0) {
+				ptr += sprintf(ptr,"\n%04X | ",i);
+			}
+            // printf("i=%04X\n",i);
+            ptr += sprintf(ptr,"%02X ",memread(0,i));
+            if ((ptr-stack_str)+3 >= 300) {
+                break;
+            }
+        }
+    }
+
+	dont_log_memreads = false;
+
+    sprintf(debug_str,
+        "PC=%s dump='%6s' decode='%s'             \n"
+        "AF =%04X BC =%04X DE =%04X HL =%04X IX =%04X IY =%04X SP =%04X\n"
+        "AF'=%04X BC'=%04X'DE =%04X HL'=%04X IX'=%04X IY'=%04X SP'=%04X\n"
+        "Stack: %s\n"
+        ,
+        addr2str(ctx.PC),
+		/* ctx.PC, */
+        dump_str,
+        decode_str,
+
+        ctx.R1.wr.AF,
+        ctx.R1.wr.BC,
+        ctx.R1.wr.DE,
+        ctx.R1.wr.HL,
+        ctx.R1.wr.IX,
+        ctx.R1.wr.IY,
+        ctx.R1.wr.SP,
+
+        ctx.R2.wr.AF,
+        ctx.R2.wr.BC,
+        ctx.R2.wr.DE,
+        ctx.R2.wr.HL,
+        ctx.R2.wr.IX,
+        ctx.R2.wr.IY,
+        ctx.R2.wr.SP,
+
+        stack_str
+    );
+
+    return debug_str;
+}
+
+
+void debug_dump() {
+	printf("\n\n========== DEBUG DUMP ===========\n");
+	get_cpu_state();
+	puts(debug_str);
+	printf("\n\n");
+}
+
+
+Label debug_labels[1024];
+int debug_labels_count = 0;
+char label_rel_buf[64];
+
+char* addr2str(u16 addr) {
+    if (debug_labels_count == 0) {
+        snprintf(label_rel_buf, sizeof(label_rel_buf), "$%04X", addr);
+        return label_rel_buf;
+    }
+    u16 last_one = 0;
+    char* last_name = debug_labels[0].name;
+    for (int i = 0; i < debug_labels_count; i++) {
+        if (debug_labels[i].addr > addr)
+            break;
+        last_one = debug_labels[i].addr;
+        last_name = debug_labels[i].name;
+    }
+    snprintf(label_rel_buf, sizeof(label_rel_buf), "%.20s+$%X ($%04X)", last_name, addr - last_one, addr);
+    return label_rel_buf;
+}
+
+

@@ -10,6 +10,20 @@
 /* #define BATCH_CYCLES 1000*10 */
 /* #define TARGET_HZ (1000*1000*10) // 10mhz */
 
+void load_debug_labels(const char* filename) {
+    FILE* f = fopen(filename, "r");
+    if (!f) return;
+    debug_labels_count = 0;
+    while (debug_labels_count < 1024 &&
+           fscanf(f, "%hx %63s", &debug_labels[debug_labels_count].addr,
+                                  debug_labels[debug_labels_count].name) == 2) {
+        debug_labels_count++;
+    }
+    fclose(f);
+    printf("loaded %d debug labels\n",debug_labels_count);
+    printf("%d '%s'\n",debug_labels[0].addr,debug_labels[0].name);
+}
+
 void sigint_handle(int sig) {
     running = false;
 }
@@ -50,6 +64,15 @@ int main(int argc, char** argv) {
     for (int i=0;i<argc;i++) {
         if (!strcmp(argv[i],"-rom")) {
             load_rom(argv[++i]);
+        }
+        else if (!strcmp(argv[i],"-labels")) {
+            load_debug_labels(argv[++i]);
+        }
+        else if (!strcmp(argv[i],"-addr2str")) {
+            int inp = atoi(argv[++i]);
+            u16 addr = (u16)inp;
+            printf("%d -> $%04X -> %s\n",inp,addr,addr2str(addr));
+            exit(0);
         }
         else if (!strcmp(argv[i],"-mhz")) target_mhz = atof(argv[++i]);
         else if (!strcmp(argv[i],"-bc")) batch_cycles = atoi(argv[++i]);

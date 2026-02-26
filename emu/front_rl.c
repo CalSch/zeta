@@ -69,11 +69,11 @@ void* thread_task(void* arg) {
 			}
 		}
 
-		/* DrawFPS(10,10); */
+		DrawFPS(10,10);
 
 		EndTextureMode();
 
-		Z80INT(&ctx,1);
+		Z80INT(&ctx,2);
 
 		BeginDrawing();
 		DrawTexturePro(

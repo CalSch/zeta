@@ -23,7 +23,7 @@ void newline(void);
 void putc(char c);
 void puts(char* str);
 void putbin(u8 x);
-void putdec(u16 n_);
+void putdec(int n_);
 
 
 u16 strlen(char* str);

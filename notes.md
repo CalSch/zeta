@@ -45,6 +45,7 @@ io!!!
 			- FF's are to tell the mapper that the command is done. this prevents synchronization issues i think
 	- 3: keyboard
 		- see keyboard section
+	- 4: debug: write to this to trigger a debug dump
 
 
 keyboard!!!!!
@@ -97,4 +98,5 @@ interrupts!!!!!!
 - mode 2 i think
 	- the one where the device gives it a nuber and it jumps table
 - nubers:
-	- 1=vsync / end of frame drawing
+	- all even bc thats how it works
+	- 2=vsync / end of frame drawing
