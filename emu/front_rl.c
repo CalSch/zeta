@@ -42,7 +42,7 @@ void* thread_task(void* arg) {
 	InitWindow(640,480,"mmmmm puter...");
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
 
-	Font font = LoadFont("/home/calvin/Downloads/PrintChar21.ttf");
+	Font font = LoadFont("PrintChar21.ttf");
 	RenderTexture2D scr = LoadRenderTexture(640,480);
 
 	SetTargetFPS(60);
