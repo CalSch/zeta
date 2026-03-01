@@ -2,6 +2,8 @@
 #include <pthread.h>
 #include "emu.h"
 
+bool draw_fps;
+
 pthread_t thread;
 
 #define COMBINE_KEYS(a,b,c,d,e,f,g,h) ( \
@@ -69,7 +71,8 @@ void* thread_task(void* arg) {
 			}
 		}
 
-		DrawFPS(10,10);
+		if (draw_fps)
+			DrawFPS(10,10);
 
 		EndTextureMode();
 
