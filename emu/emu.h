@@ -10,6 +10,7 @@
 #define ROM_SIZE SECT_SIZE
 #define RAM_SIZE (SECT_SIZE*512)
 
+#define ARRAY_LEN(a) (sizeof(a)/sizeof(a[0]))
 
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -29,6 +30,7 @@ extern bool dbg_memread;
 extern bool dbg_memwrite;
 extern bool dbg_ioread;
 extern bool dbg_iowrite;
+extern bool dbg_callstack;
 
 
 void setup_sector_table();
@@ -44,12 +46,19 @@ void emu_tick();
 
 void print_cpu_state_inline();
 
+typedef struct {
+    bool is_int;
+    u16 from;
+    u16 to;
+} call_t;
+extern call_t call_stack[1024];
+extern u16 call_stack_size;
 
 typedef struct {
     u16 addr;
     char name[64];
-} Label;
+} debug_label_t;
 
-extern Label debug_labels[1024];
+extern debug_label_t debug_labels[1024];
 extern int debug_labels_count;
 char* addr2str(u16 addr);

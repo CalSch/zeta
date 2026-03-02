@@ -16,11 +16,12 @@ u8 ram[RAM_SIZE];
 u16 sector_table[SECTORS] = {0}; // maps software sector index (0-7) to hardware sector index (0-65535)
 u8 mapper_state[6] = {0};
 
-bool dbg_state    = false;
-bool dbg_memread  = false;
-bool dbg_memwrite = false;
-bool dbg_ioread   = false;
-bool dbg_iowrite  = false;
+bool dbg_state     = false;
+bool dbg_memread   = false;
+bool dbg_memwrite  = false;
+bool dbg_ioread    = false;
+bool dbg_iowrite   = false;
+bool dbg_callstack = false;
 
 bool dont_log_memreads = false; // overrides dbg_memread
 
@@ -152,11 +153,50 @@ void iowrite(int param, u16 addr, u8 val) {
 }
 
 
+call_t call_stack[1024];
+u16 call_stack_size = 0;
+
+void print_call_stack() {
+	for (int i=0;i<call_stack_size;i++) {
+		printf("  stack[%4d] = %s'%s' -> ",i,call_stack[i].is_int?"INT ":"    ",addr2str(call_stack[i].from));
+		printf("'%s'\n",addr2str(call_stack[i].to));
+	}
+}
+void on_call(u16 from, u16 to, u8 is_int) {
+	if (call_stack_size >= ARRAY_LEN(call_stack)-1) {
+		printf("wow that's a lot of calls. (is that a stackoverflow.com reference?)\n");
+		printf("here's the stack:\n");
+		print_call_stack();
+		/* exit(1); */
+		running = false;
+		return;
+	}
+	call_stack[call_stack_size++] = (call_t){is_int,from,to};
+	if (dbg_callstack) {
+		printf("call %s -> ", addr2str(from));
+		printf("%s s=%d\n", addr2str(to), call_stack_size);
+	}
+}
+void on_ret(u16 from, u16 to) {
+	if (call_stack_size == 0) {
+		printf("um... bro just did `ret` when the call stack size was 0. i guess i'll ignore that\n");
+	} else {
+		call_stack_size--;
+	}
+	if (dbg_callstack) {
+		printf(" ret %s -> ", addr2str(from));
+		printf("%s s=%d\n", addr2str(to), call_stack_size);
+	}
+}
+
 void emu_init() {
 	ctx.memRead = memread;
 	ctx.memWrite = memwrite;
 	ctx.ioRead = ioread;
 	ctx.ioWrite = iowrite;
+	ctx.on_call = on_call;
+	ctx.on_ret = on_ret;
+	/* ctx.on_int = on_call; */
 	Z80RESET(&ctx);
 	LOG_INFO("setup");
 }
@@ -184,7 +224,8 @@ void print_cpu_state_inline() {
 
 	printf(
 		"PC=%s dump='%s' decode='%s' "
-		"AF=%04x BC=%04x DE=%04x HL=%04x SP=%04x"
+		"AF=%04x BC=%04x DE=%04x HL=%04x SP=%04x "
+		"csp=%d"
 		"\n"
 		,
         addr2str(ctx.PC),
@@ -196,7 +237,9 @@ void print_cpu_state_inline() {
 		ctx.R1.wr.BC,
 		ctx.R1.wr.DE,
 		ctx.R1.wr.HL,
-		ctx.R1.wr.SP
+		ctx.R1.wr.SP,
+
+		call_stack_size
 	);
 }
 
@@ -267,11 +310,13 @@ void debug_dump() {
 	printf("\n\n========== DEBUG DUMP ===========\n");
 	get_cpu_state();
 	puts(debug_str);
+	printf("call stack:\n");
+	print_call_stack();
 	printf("\n\n");
 }
 
 
-Label debug_labels[1024];
+debug_label_t debug_labels[1024];
 int debug_labels_count = 0;
 char label_rel_buf[64];
 
