@@ -9,7 +9,5 @@
 out.bin
 emu/main
 
-emu/libz80/
-
 # sdcc generated asm files
 *.asm
