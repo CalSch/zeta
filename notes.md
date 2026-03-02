@@ -100,3 +100,15 @@ interrupts!!!!!!
 - nubers:
 	- all even bc thats how it works
 	- 2=vsync / end of frame drawing
+
+
+
+
+
+
+helpful resources:
+- https://aoineko.org/msxgl/index.php?title=SDCC
+	- https://shop-pdp.net/ashtml/asmlnk.pdf
+- https://gist.github.com/Konamiman/af5645b9998c802753023cf1be8a2970
+- https://libz80.sourceforge.net/
+
