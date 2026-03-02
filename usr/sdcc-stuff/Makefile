@@ -6,7 +6,7 @@ LDFLAGS = -mz80 --no-std-crt0 --code-loc 0x0000 --data-loc 0x2000
 SRCS := $(wildcard *.c)
 OBJS = init.rel $(patsubst %.c,%.rel,$(filter %.c,$(SRCS)))
 
-all: out.bin
+all: out.bin labels.txt
 
 # compile
 %.rel: %.c
@@ -35,5 +35,8 @@ out.ihx: $(OBJS)
 out.bin: out.ihx
 	makebin -p $< $@
 
+labels.txt: out.ihx
+	python3 get_labels.py out.map *.lst > labels.txt
+
 clean:
-	rm -f *.rel *.ihx *.bin *.map *.noi *.lk *.lst *.sym *.asm
+	rm -vf *.rel *.ihx *.bin *.map *.noi *.lk *.lst *.sym *.asm labels.txt

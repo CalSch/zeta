@@ -39,7 +39,11 @@ if len(sys.argv) < 2:
 
 areas, labels = parse_map(sys.argv[1])
 for lst in sys.argv[2:]:
-    labels.update(parse_lst(lst, areas, labels))
+    # labels.update(parse_lst(lst, areas, labels))
+    lst_labels = parse_lst(lst, areas, labels)
+    for k, v in lst_labels.items():
+        if k not in labels:
+            labels[k] = v
 
 for label, addr in sorted(labels.items(), key=lambda x: x[1]):
     print(f"{addr:04x} {label}")
