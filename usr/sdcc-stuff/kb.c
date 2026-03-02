@@ -20,7 +20,12 @@ u8 get_kb_row(u8 row) __naked {
 	__endasm;
 }
 
+u8 bitmask[] = {1,2,4,8,16,32,64,128};
 u8 is_key_down(u8 scancode) {
-	return (kb_state[scancode/8]>>(scancode%8))&1;
+	// does this:
+	/* return (kb_state[scancode/8]>>(scancode%8))&1; */
+
+	// but its faster to do this:
+	return kb_state[scancode>>3] & bitmask[scancode&7];
 }
 

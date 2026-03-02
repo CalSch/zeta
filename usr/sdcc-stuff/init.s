@@ -70,13 +70,15 @@ end_frame_int:
     cp A, #0
     jp NZ, end_interrupt_pop
     
-    inc A
+    ;inc A
+    ld A, #1
     ld (in_video_int), A
 
     ei
     call _end_frame
 
-    xor A, A
+    ;xor A, A
+    ld A, #0
     ld (in_video_int), A
 
     POP_ALL

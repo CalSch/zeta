@@ -2,11 +2,13 @@
 
 int cur=0;
 
-void clear(void) {
+void clear(void) __naked {
 	__asm
 		ld HL, #0xe000
 		ld DE, #0xe001
 		ld BC, #4800
+		;ld BC, (_cur)
+		;out (4), A
 		ld (HL), #' '
 		ldir
 		ret

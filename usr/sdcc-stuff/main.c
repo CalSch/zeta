@@ -39,7 +39,6 @@ void run_input(void) {
 		z = 0;
 		break;
 	} 
-	clear();
 }
 
 void special_keypress(u8 scancode) {
@@ -55,7 +54,7 @@ void special_keypress(u8 scancode) {
 }
 
 void keypress(u8 scancode) {
-	clear();
+	/* clear(); */
 	char c;
 	if (is_key_down(SCN(4,4)))
 		c = scancode2char_shift[scancode];
@@ -73,6 +72,7 @@ void keypress(u8 scancode) {
 }
 
 void end_frame(void) {
+	clear();
 	cur = TXT_COLS;
 
 	/* putbin(t); */

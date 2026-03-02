@@ -2,6 +2,8 @@
 #include <pthread.h>
 #include "emu.h"
 
+bool draw_fps;
+
 pthread_t thread;
 
 #define COMBINE_KEYS(a,b,c,d,e,f,g,h) ( \
@@ -42,7 +44,7 @@ void* thread_task(void* arg) {
 	InitWindow(640,480,"mmmmm puter...");
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
 
-	Font font = LoadFont("/home/calvin/Downloads/PrintChar21.ttf");
+	Font font = LoadFont("PrintChar21.ttf");
 	RenderTexture2D scr = LoadRenderTexture(640,480);
 
 	SetTargetFPS(60);
@@ -69,7 +71,8 @@ void* thread_task(void* arg) {
 			}
 		}
 
-		DrawFPS(10,10);
+		if (draw_fps)
+			DrawFPS(10,10);
 
 		EndTextureMode();
 

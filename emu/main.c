@@ -82,6 +82,7 @@ int main(int argc, char** argv) {
         else if (!strcmp(argv[i],"-din")) dbg_ioread = true;
         else if (!strcmp(argv[i],"-dout")) dbg_iowrite = true;
         else if (!strcmp(argv[i],"-dcs")) dbg_callstack = true;
+        else if (!strcmp(argv[i],"-fps")) draw_fps = true;
     }
     printf("target_mhz=%f\n",target_mhz);
     printf("batch_cycles=%d\n",batch_cycles);
