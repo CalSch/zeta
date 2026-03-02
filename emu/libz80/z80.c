@@ -752,7 +752,11 @@ static void do_int(Z80Context* ctx)
     {
         doPush(ctx, ctx->PC);
 		ushort vector_address = (ctx->I << 8) | ctx->int_vector;
-		ctx->PC = read16(ctx, vector_address);
+		ushort to = read16(ctx, vector_address);
+		
+		if (ctx->on_call) ctx->on_call(ctx->PC,to,1); /* TODO: do this for other INT types */
+
+		ctx->PC = to;
 		ctx->tstates += 7;
     }
 }

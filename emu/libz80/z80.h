@@ -98,6 +98,10 @@ typedef struct
 	Z80DataIn	ioRead;
 	Z80DataOut	ioWrite;
 	int			ioParam;
+
+	void (*on_call)(ushort from, ushort to, byte is_int);
+	void (*on_ret)(ushort from, ushort to);
+	/* void (*on_int)(ushort from, ushort to); */
 	
 	byte		halted;
 	unsigned long tstates;
