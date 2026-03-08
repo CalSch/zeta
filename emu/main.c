@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "emu.h"
+#include "disks.h"
 #include "front_rl.h"
 #include <signal.h>
 #include <unistd.h>
@@ -84,6 +85,16 @@ int main(int argc, char** argv) {
         else if (!strcmp(argv[i],"-dcs")) dbg_callstack = true;
         else if (!strcmp(argv[i],"-fps")) draw_fps = true;
     }
+
+
+    diskctx.disks[0].attrs=1;
+    diskctx.disks[0].size=1;
+    diskctx.disks[0].data=malloc(SECT_SIZE);
+    diskctx.disks[0].data[0]='h';
+    diskctx.disks[0].data[1]='i';
+    diskctx.disks[0].data[2]=':';
+    diskctx.disks[0].data[3]=')';
+
     printf("target_mhz=%f\n",target_mhz);
     printf("batch_cycles=%d\n",batch_cycles);
     start_raylib();

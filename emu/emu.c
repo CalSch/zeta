@@ -3,6 +3,7 @@
 #include "emu.h"
 #include "video.h"
 #include "front_rl.h"
+#include "disks.h"
 
 void debug_dump();
 
@@ -51,6 +52,9 @@ u8 memread(int param, u16 addr) {
 	} else if (VRAM_HWS_FIRST <= hw_sect && hw_sect <= VRAM_HWS_LAST) {
 		val = vram.data[rel_addr-((hw_sect-VRAM_HWS_FIRST)*SECT_SIZE)];
 		strcpy(dev,"vram");
+	} else if (hw_sect == DISK_BUF_HWS) {
+		val = disk_bufread(rel_addr);
+		strcpy(dev,"disk");
 	}
 
 	if (dbg_memread && !dont_log_memreads)
@@ -77,6 +81,9 @@ void memwrite(int param, u16 addr, u8 val) {
 	} else if (VRAM_HWS_FIRST <= hw_sect && hw_sect <= VRAM_HWS_LAST) {
 		vram.data[rel_addr-((hw_sect-VRAM_HWS_FIRST)*SECT_SIZE)] = val;
 		strcpy(dev,"vram");
+	} else if (hw_sect == DISK_BUF_HWS) {
+		disk_bufwrite(rel_addr, val);
+		strcpy(dev,"disk");
 	}
 
 	if (dbg_memwrite)
@@ -146,6 +153,9 @@ void iowrite(int param, u16 addr, u8 val) {
 		}
 	} else if (addr == 4) {
 		debug_dump();
+	} else if (addr == 5) {
+		strcpy(dev,"disk");
+		disk_iowrite(val);
 	}
 
 	if (dbg_iowrite)

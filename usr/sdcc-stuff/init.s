@@ -40,7 +40,18 @@ in_video_int:
 .endm
 
 start:
-    MAP_SECTOR #6, #2, #1
+    MAP_SECTOR #2, #0, #1 ; sw2 -> hw1 (disk)
+
+    call test
+
+    ld A, #0x0A
+    out (5), A
+
+    call test
+
+    jp .
+
+    MAP_SECTOR #6, #2, #1 ; sw6 -> hw513 (vram0)
     ld SP, #0xdfff ; stack at top of last sector
     
     ; setup ints
@@ -59,6 +70,19 @@ start:
     call _setup
 
     jp .
+
+test:
+    ld A, (0x4000)
+    out (0), A
+    ld A, (0x4001)
+    out (0), A
+    ld A, (0x4002)
+    out (0), A
+    ld A, (0x4003)
+    out (0), A
+    ld A, #'\n'
+    out (0), A
+    ret
 
 unknown_int:
     ei

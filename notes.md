@@ -10,9 +10,9 @@ each process has some memory banks. at least one. no shared memory
 memory!!
 - 256 bytes = 1 page
 - 32 pages / 8k = 1 sector
-- 8 sectors = 1 book / 64k
+- 8 sectors = 1 book / 64k (not a useful unit but its fun to analogize)
 - each of the 8 sectors can be swapped out for any other
-- at boot, sector 0 is mapped to ROM
+- at boot, sector 0 is mapped to ROM (more on this later)
 - how many total sectors of RAM?
 	- how bout 512
 	- thats 4m of RAM or 2^22 bytes
@@ -46,6 +46,7 @@ io!!!
 	- 3: keyboard
 		- see keyboard section
 	- 4: debug: write to this to trigger a debug dump
+	- 5: disk: see disk section
 
 
 keyboard!!!!!
@@ -53,6 +54,7 @@ keyboard!!!!!
 - when running `in A, (C)`, set C to 3 and B to the keyboard row to look at
 - this is how the c64 and zx spectrum work.
 matrix:
+```
    0  1  2  3  4  5  6  7
 00 A  B  C  D  E  F  G  H
 01 I  J  K  L  M  N  O  P
@@ -62,6 +64,9 @@ matrix:
 05 bk de en ta up dn le ri
 06 -  =  [  ]  \  ;  '  ,
 07 .  /  `  sp ## ## ## ##
+```
+
+(if the two letter abbreviations confuse you, look at `emu/front_rl.c` and `get_kb_row()` for the raylib names for each key)
 
 video!!!!
 - vram
@@ -102,6 +107,42 @@ interrupts!!!!!!
 	- 2=vsync / end of frame drawing
 
 
+disk!!!!!!!
+- the disk controller has an 8k buffer that it controls (thats HW sector 1)
+- you send commands to IO port 5 (the disk controller) and it does things
+- such things are:
+	- read 8k from a disk into the buffer
+	- write the buffer into a disk
+- you can have 256 disks
+- disks can be up to 512MiB (16bit address space, addressed by 8k sectors)
+- maybe later, there will be "big disks" with 24bit address space, so 128GiB of storage
+- there's internal registers in the disk controller for current disk index and sector index
+- there's also a register that stores data to be read back, see more in the "get ____" commands
+	- called RB for "readback"
+	- anytime you do "in A, (5)" it will read the RB register. you can change what data you get by sending commands.
+- commands:
+	- set disk index: 01 DD
+		- DD: disk index
+	- set sector index: 02 SS SS
+		- SS SS: 2 byte sector index (high byte first)
+	- inc sector idx: 03
+	- dec sector idx: 04
+	- get disk idx: 05
+		- sets RB to disk index
+	- get sector idx: 06
+		- yeah you get it
+	- get disk attributes: 07
+		- sets RB to the current disk's attributes
+	- get disk size, low byte: 08
+		- sets RB to the low byte of the disk size (in 8k sectors)
+	- get disk size, high byte: 09
+		- sets RB to the high byte of the disk size (in 8k sectors)
+	- read sector: 0A
+	- write sector: 0B
+- disk attributes:
+	- bit 0: is the disk even there
+	- bit 1: can you write to it
+	- bits 2-7: idk bro there might be more later
 
 
 
@@ -111,4 +152,9 @@ helpful resources:
 	- https://shop-pdp.net/ashtml/asmlnk.pdf
 - https://gist.github.com/Konamiman/af5645b9998c802753023cf1be8a2970
 - https://libz80.sourceforge.net/
+
+some terms:
+- HWS: hardware sector (index)
+
+
 
