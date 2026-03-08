@@ -51,6 +51,44 @@ void load_rom(char* filename) {
     fclose(f);
 }
 
+u8 get_free_disk_idx() {
+    // TODO: error if no disk found, currently will loop forever
+    u8 idx = 0;
+    while (diskctx.disks[idx].attrs & 1)
+        idx++;
+    return idx;
+}
+
+void add_disk(char* name) {
+    printf("opening file '%s'...\n",name);
+    FILE* f = fopen(name,"r");
+    if (f == NULL) {
+        perror("open(disk_file)");
+        exit(1);
+    }
+
+    disk_t d = {0};
+    d.attrs = 1; // yeah its there
+    
+    // figure out dat size
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    rewind(f);
+
+    d.size = (size + SECT_SIZE - 1) / SECT_SIZE;
+
+    d.data = malloc(d.size * SECT_SIZE);
+    memset(d.data, 0, d.size * SECT_SIZE);
+
+    fread(d.data, size, 1, f);
+
+    u8 disk_idx = get_free_disk_idx();
+
+    diskctx.disks[disk_idx] = d;
+
+    printf("added disk %d: %ld bytes (%d sectors)\n", disk_idx, size, d.size);
+}
+
 double get_current_time() {
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
@@ -84,16 +122,12 @@ int main(int argc, char** argv) {
         else if (!strcmp(argv[i],"-dout")) dbg_iowrite = true;
         else if (!strcmp(argv[i],"-dcs")) dbg_callstack = true;
         else if (!strcmp(argv[i],"-fps")) draw_fps = true;
+        else if (!strcmp(argv[i],"-disk")) {
+            add_disk(argv[++i]);
+        }
     }
 
 
-    diskctx.disks[0].attrs=1;
-    diskctx.disks[0].size=1;
-    diskctx.disks[0].data=malloc(SECT_SIZE);
-    diskctx.disks[0].data[0]='h';
-    diskctx.disks[0].data[1]='i';
-    diskctx.disks[0].data[2]=':';
-    diskctx.disks[0].data[3]=')';
 
     printf("target_mhz=%f\n",target_mhz);
     printf("batch_cycles=%d\n",batch_cycles);
