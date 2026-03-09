@@ -59,6 +59,21 @@ u8 get_free_disk_idx() {
     return idx;
 }
 
+void right_to_dih(disk_t disk) {
+    printf("writing to dih '%s'...\n", disk.fname);
+    FILE *f = fopen(disk.fname, "w");
+    if (f == NULL) {
+        perror("open(dih)");
+        exit(1);
+    }
+
+    /* printf("disk: %.3s\n", disk.data); */
+    /* printf("buf : %.3s\n", diskctx.buffer); */
+    fwrite(disk.data, disk.size * SECT_SIZE, 1,  f);
+
+    fclose(f);
+}
+
 void add_disk(char* name) {
     printf("opening file '%s'...\n",name);
     FILE* f = fopen(name,"r");
@@ -68,6 +83,8 @@ void add_disk(char* name) {
     }
 
     disk_t d = {0};
+    d.fname = name;
+    d.on_write = right_to_dih;
     d.attrs = 1; // yeah its there
     
     // figure out dat size

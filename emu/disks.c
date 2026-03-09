@@ -50,14 +50,21 @@ void disk_do_cmd() {
 
 		case DISK_CMD_WRITE:
 			if (CURRENT_DISK.attrs & 1) // is the disk there? TODO: set error
-				if (CURRENT_DISK.size < diskctx.sector_idx) // is there space? TODO: set error
+				if (CURRENT_DISK.size > diskctx.sector_idx) {// is there space? TODO: set error
 					memcpy(CURRENT_DISK.data + (diskctx.sector_idx * SECT_SIZE), diskctx.buffer, SECT_SIZE);
+					if (CURRENT_DISK.on_write != NULL) {
+						CURRENT_DISK.on_write(CURRENT_DISK);
+					}
+				} else
+					printf("no space\n");
+				else
+					printf("aint there\n");
 			break;
 	}
 }
 
 void disk_iowrite(u8 data) {
-	printf("disk io write. cmdbuf = %02x %02x %02x %02x\n",diskctx.cmd_buf[0],diskctx.cmd_buf[1],diskctx.cmd_buf[2],diskctx.cmd_buf[3]);
+	/* printf("disk io write. cmdbuf = %02x %02x %02x %02x\n",diskctx.cmd_buf[0],diskctx.cmd_buf[1],diskctx.cmd_buf[2],diskctx.cmd_buf[3]); */
 	if (diskctx.cmd_buf_idx == 4) {
 		// TODO: error
 		return;

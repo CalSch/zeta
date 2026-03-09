@@ -208,7 +208,6 @@ void emu_init() {
 	ctx.on_ret = on_ret;
 	/* ctx.on_int = on_call; */
 	Z80RESET(&ctx);
-	LOG_INFO("setup");
 }
 void emu_tick() {
 	if (dbg_state)

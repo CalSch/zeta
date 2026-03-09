@@ -22,6 +22,10 @@ typedef struct disk_t {
     u8 attrs;
     u16 size; // 8k sector count
     u8 *data;
+
+    char *fname; // file name of the file corresponding to the disk if there is one
+
+    void (*on_write)(struct disk_t disk);
 } disk_t;
 
 struct diskctx_t{
