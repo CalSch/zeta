@@ -6,8 +6,14 @@
 *.rel
 *.ihx
 
+Session.vim
+
 out.bin
 emu/main
+
+emu/libz80/codegen/mktables
+emu/libz80/codegen/opcodes_*
+emu/libz80/libz80.o
 
 # sdcc generated asm files
 *.asm
