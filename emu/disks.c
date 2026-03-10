@@ -23,6 +23,7 @@ static void clear_cmdbuf() {
 		diskctx.cmd_buf[i] = 0;
 }
 
+//TODO: make errors better
 void disk_do_cmd() {
 	printf("doing command: %02x %02x %02x %02x\n",diskctx.cmd_buf[0],diskctx.cmd_buf[1],diskctx.cmd_buf[2],diskctx.cmd_buf[3]);
 	switch (diskctx.cmd_buf[0]) {
@@ -43,7 +44,7 @@ void disk_do_cmd() {
 				if (CURRENT_DISK.size > diskctx.sector_idx) // is there space? TODO: set error
 					memcpy(diskctx.buffer, CURRENT_DISK.data + (diskctx.sector_idx * SECT_SIZE), SECT_SIZE);
 				else
-					printf("to smol %d <= %d\n",CURRENT_DISK.size, diskctx.sector_idx);
+					printf("to smol, size %d <= si %d\n",CURRENT_DISK.size, diskctx.sector_idx);
 			else
 				printf("aint there\n");
 			break;
@@ -64,7 +65,6 @@ void disk_do_cmd() {
 }
 
 void disk_iowrite(u8 data) {
-	/* printf("disk io write. cmdbuf = %02x %02x %02x %02x\n",diskctx.cmd_buf[0],diskctx.cmd_buf[1],diskctx.cmd_buf[2],diskctx.cmd_buf[3]); */
 	if (diskctx.cmd_buf_idx == 4) {
 		// TODO: error
 		return;
@@ -72,7 +72,9 @@ void disk_iowrite(u8 data) {
 	diskctx.cmd_buf[diskctx.cmd_buf_idx] = data;
 	diskctx.cmd_buf_idx++;
 	
+	/* printf("disk io write. cmdbuf  = %02x %02x %02x %02x\n",diskctx.cmd_buf[0],diskctx.cmd_buf[1],diskctx.cmd_buf[2],diskctx.cmd_buf[3]); */
 	int cmdlen = command_lengths[diskctx.cmd_buf[0]];
+	/* printf("cmdlen=%d\n",cmdlen); */
 	if (cmdlen == diskctx.cmd_buf_idx) {
 		disk_do_cmd();	
 		diskctx.cmd_buf_idx = 0;
