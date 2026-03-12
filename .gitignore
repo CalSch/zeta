@@ -17,3 +17,6 @@ emu/libz80/libz80.o
 
 # sdcc generated asm files
 *.asm
+
+# generated label files
+labels.txt
