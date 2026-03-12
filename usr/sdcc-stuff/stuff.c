@@ -33,6 +33,15 @@ void putbin(u8 x) {
 		putc((x>>i)&1 ? '1' : '0');
 	}
 }
+const char hextable[] = "0123456789ABCDEF";
+void puthex8(u8 x) {
+	putc(hextable[x>>4]);
+	putc(hextable[x&0xf]);
+}
+void puthex16(u16 x) {
+	puthex8(x>>8);
+	puthex8(x&0xff);
+}
 void putdec(int n_) {
 	int n=n_; // sdcc sucks
 	if (n<0) {
@@ -55,6 +64,31 @@ void putdec(int n_) {
 	}
 }
 
+
+void memcpy(void* dest, void* src, u16 n) {
+	while (n--)
+		((u8*)dest)[n]=((u8*)src)[n];
+}
+void memcpy_asm(void* src, void* dest, u16 n) __naked {
+	(void)src;
+	(void)dest;
+	(void)n;
+	__asm
+		push IX
+		push BC
+		
+		ld IX, #6 ; n is pushed to the stack, offset by 6 to get past BC, IX, and PC
+		add IX,sp
+		ld C, (IX)
+		ld B, 1(IX)
+
+		ldir
+
+		pop BC
+		pop IX
+		ret
+	__endasm;
+}
 
 u16 strlen(char* str) {
 	char* s;
