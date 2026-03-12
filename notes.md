@@ -150,11 +150,9 @@ disk!!!!!!!
 helpful resources:
 - https://aoineko.org/msxgl/index.php?title=SDCC
 	- https://shop-pdp.net/ashtml/asmlnk.pdf
-- https://gist.github.com/Konamiman/af5645b9998c802753023cf1be8a2970
+- mixing asm & c: https://gist.github.com/Konamiman/af5645b9998c802753023cf1be8a2970
 - https://libz80.sourceforge.net/
 
-some terms:
-- HWS: hardware sector (index)
-
-
+"profiler": ./main -rom ../usr/sdcc-stuff/out.bin -labels ../usr/sdcc-stuff/labels.txt -dstate | grep -Eo 'PC=.* AF' | sed 's/ AF//g' | sort | uniq -c | sort -n
+(this just sorts every PC value by how often its printed during runtime)
 
