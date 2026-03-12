@@ -163,7 +163,7 @@ void iowrite(int param, u16 addr, u8 val) {
 }
 
 
-call_t call_stack[1024];
+call_t call_stack[CALLSTACK_SIZE];
 u16 call_stack_size = 0;
 
 void print_call_stack() {
@@ -183,6 +183,9 @@ void on_call(u16 from, u16 to, u8 is_int) {
 	}
 	call_stack[call_stack_size++] = (call_t){is_int,from,to};
 	if (dbg_callstack) {
+		// indent
+		for (int i=0;i<call_stack_size;i++)
+			putc(' ',stdout);
 		printf("call %s -> ", addr2str(from));
 		printf("%s s=%d\n", addr2str(to), call_stack_size);
 	}
@@ -194,6 +197,9 @@ void on_ret(u16 from, u16 to) {
 		call_stack_size--;
 	}
 	if (dbg_callstack) {
+		// indent
+		for (int i=0;i<call_stack_size;i++)
+			putc(' ',stdout);
 		printf(" ret %s -> ", addr2str(from));
 		printf("%s s=%d\n", addr2str(to), call_stack_size);
 	}

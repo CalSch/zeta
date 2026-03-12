@@ -10,6 +10,8 @@
 #define ROM_SIZE SECT_SIZE
 #define RAM_SIZE (SECT_SIZE*512)
 
+#define CALLSTACK_SIZE 256
+
 #define ARRAY_LEN(a) (sizeof(a)/sizeof(a[0]))
 
 typedef unsigned char u8;
@@ -51,7 +53,7 @@ typedef struct {
     u16 from;
     u16 to;
 } call_t;
-extern call_t call_stack[1024];
+extern call_t call_stack[CALLSTACK_SIZE];
 extern u16 call_stack_size;
 
 typedef struct {
