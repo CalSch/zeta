@@ -181,7 +181,7 @@ void on_call(u16 from, u16 to, u8 is_int) {
 		running = false;
 		return;
 	}
-	call_stack[call_stack_size++] = (call_t){is_int,from,to};
+	call_stack[call_stack_size++] = (call_t){is_int, from, to};
 	if (dbg_callstack) {
 		// indent
 		for (int i=0;i<call_stack_size;i++)
@@ -219,6 +219,12 @@ void emu_tick() {
 	if (dbg_state)
 		print_cpu_state_inline();
 	Z80Execute(&ctx);
+
+	// detect jumps that are secretly returns
+	// ex. `jp (HL)` when HL is the caller return address
+	if (call_stack_size > 0 && ctx.PC == call_stack[call_stack_size-1].from) {
+		on_ret(ctx.PC, call_stack[call_stack_size-1].from);
+	}
 }
 
 
