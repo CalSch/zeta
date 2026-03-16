@@ -1,6 +1,6 @@
 CC = sdcc
 AS = sdasz80
-CFLAGS = -mz80 --no-std-crt0 --nostdinc
+CFLAGS = -mz80 --no-std-crt0 --nostdinc --no-peep
 LDFLAGS = -mz80 --no-std-crt0 --code-loc 0x0000 --data-loc 0x2000
 
 SRCS := $(wildcard *.c)
@@ -11,12 +11,14 @@ all: out.bin labels.txt
 # compile
 %.rel: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
+	@echo
 
 # assemble
 %.rel: %.s
 	$(AS) -l -o $@ $<
 
 # link
+# this ones messed up dude, like fr
 # we build it twice. once to get the sizes of each area, and another to put _INITIALIZER and _int_table in the right place
 # start of _INITIALIZER = end of _CODE (l__CODE)
 # start of _int_table = end of _INITIALIZER, aligned to the start of a page (((l__CODE + l__INITIALIZER)/256 + 1)*256)
@@ -36,7 +38,7 @@ out.bin: out.ihx
 	makebin -p $< $@
 
 labels.txt: out.ihx
-	python3 get_labels.py out.map *.lst > labels.txt
+	python3 newlabels.py out.map *.lst | sort > labels.txt
 
 clean:
 	rm -vf *.rel *.ihx *.bin *.map *.noi *.lk *.lst *.sym *.asm labels.txt
