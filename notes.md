@@ -104,7 +104,8 @@ interrupts!!!!!!
 	- the one where the device gives it a nuber and it jumps table
 - nubers:
 	- all even bc thats how it works
-	- 2=vsync / end of frame drawing
+	- 2 = vsync / end of frame drawing
+	- 4 = special key (home key)
 
 
 disk!!!!!!!
@@ -156,3 +157,15 @@ helpful resources:
 "profiler": ./main -rom ../usr/sdcc-stuff/out.bin -labels ../usr/sdcc-stuff/labels.txt -dstate | grep -Eo 'PC=.* AF' | sed 's/ AF//g' | sort | uniq -c | sort -n
 (this just sorts every PC value by how often its printed during runtime)
 
+todo list i guess. i'll probably forget that it's here:
+- for call stack stuff, have it remember if the call was conditional (and maybe return if thats a thing)
+	- also remember other things for debugging context
+	- crazy idea: each instruction has an event id and calls remember their event ids and everything is saved so you can look through the events.
+		- ooh what if each byte in memory had a list of relevant event id's tied to it to see why something was written there
+- fix stack (not call stack) printing
+	- schmaybe add a base pointer register through io so it knows where the stack ends
+- show and control fps
+	- also, maybe make the graphics tied to the clock cycles better. if thats the case then dont let users control fps
+- log colors
+- fix debug io r/w stuff
+- text mode colors
