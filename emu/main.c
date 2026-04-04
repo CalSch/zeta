@@ -139,9 +139,7 @@ int main(int argc, char** argv) {
         else if (!strcmp(argv[i],"-dout")) dbg_iowrite = true;
         else if (!strcmp(argv[i],"-dcs")) dbg_callstack = true;
         else if (!strcmp(argv[i],"-fps")) draw_fps = true;
-        else if (!strcmp(argv[i],"-disk")) {
-            add_disk(argv[++i]);
-        }
+        else if (!strcmp(argv[i],"-disk")) add_disk(argv[++i]);
     }
 
 
