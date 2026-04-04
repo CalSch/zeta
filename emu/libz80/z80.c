@@ -720,6 +720,7 @@ static void unhalt(Z80Context* ctx)
 
 static void do_nmi(Z80Context* ctx)
 {
+	if (ctx->on_call) ctx->on_call(ctx->PC,0x66,2); /* TODO: do this for other INT types */
 	unhalt(ctx);
 	ctx->IFF2 = ctx->IFF1;
 	ctx->IFF1 = 0;

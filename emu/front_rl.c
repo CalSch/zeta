@@ -50,6 +50,11 @@ void* thread_task(void* arg) {
 	SetTargetFPS(60);
 
 	while (running && !WindowShouldClose()) {
+		if (IsKeyPressed(KEY_RIGHT_CONTROL)) { // haha its like the copilot key
+			/* Z80INT(&ctx,4); */
+			Z80NMI(&ctx);
+			/* printf("gooney %d %d %d\n", ctx.IFF1, ctx.IFF2); */
+		}
 		/* BeginDrawing(); */
 		BeginTextureMode(scr);
 
