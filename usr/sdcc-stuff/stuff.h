@@ -20,6 +20,7 @@ __at(0xe000) char screen_buf[TXT_COLS*TXT_ROWS];
 __sfr __at(0) io_stdio;
 __sfr __at(1) io_nums;
 __sfr __at(2) io_mapper;
+__sfr __at(4) io_debug;
 
 extern int cur;
 
@@ -32,6 +33,7 @@ void putbin(u8 x);
 void puthex8(u8 x);
 void puthex16(u16 x);
 void putdec(int n_);
+void scroll(void);
 
 void memcpy_asm(void* src, void* dest, u16 n);
 void memcpy(void* dest, void* src, u16 n);

@@ -1,7 +1,7 @@
 #include "stuff.h"
 
 #define MAX_BLOCKS 256
-#define HEAP_SIZE 4096
+#define HEAP_SIZE 6000
 
 struct mem_block_t {
 	u16 size;

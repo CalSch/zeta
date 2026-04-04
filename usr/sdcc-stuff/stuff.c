@@ -7,22 +7,26 @@ void clear(void) __naked {
 		ld HL, #0xe000
 		ld DE, #0xe001
 		ld BC, #4800
-		;ld BC, (_cur)
-		;out (4), A
 		ld (HL), #' '
 		ldir
 		ret
 	__endasm;
 }
 void newline(void) {
+	io_stdio='\n';
 	cur = cur - (cur%TXT_COLS) + TXT_COLS;
 }
 void putc(char c) {
 	if (c=='\n')
 		newline();
-	else
+	else {
+		io_stdio=c;
 		if (cur<sizeof(screen_buf))
 			screen_buf[cur++] = c;
+	}
+	if (cur >= TXT_COLS*(TXT_ROWS-1)) {
+		scroll();
+	}
 }
 void puts(char* str) {
 	while (*str)
@@ -62,6 +66,28 @@ void putdec(int n_) {
 			leading = 0;
 		}
 	}
+}
+void scroll(void) {
+	// damn, c is slow
+	/* for (u16 i = TXT_COLS; i<TXT_COLS*TXT_ROWS; i++) */
+	/* 	screen_buf[i-TXT_COLS] = screen_buf[i]; */
+
+	__asm
+		; shifts the screen buffer 80 bytes back
+		ld HL, #_screen_buf+80
+		ld DE, #_screen_buf
+		ld BC, #4800-80
+		ldir
+
+		; fill bottom line with spaces
+		ld HL, #_screen_buf+4800-80
+		ld DE, #_screen_buf+4800-80+1
+		ld (HL), #' '
+		ld BC, #80-1
+		ldir
+	__endasm;
+
+	cur -= TXT_COLS;
 }
 
 

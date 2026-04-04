@@ -1,7 +1,7 @@
 CC = sdcc
 AS = sdasz80
 CFLAGS = -mz80 --no-std-crt0 --nostdinc --no-peep
-LDFLAGS = -mz80 --no-std-crt0 --code-loc 0x0000 --data-loc 0x2000
+LDFLAGS = -mz80 --no-std-crt0 --code-loc 0x0100 --data-loc 0x2000 -Wl"-b _NMI=0x0066"
 
 SRCS := $(wildcard *.c)
 OBJS = init.rel $(patsubst %.c,%.rel,$(filter %.c,$(SRCS)))

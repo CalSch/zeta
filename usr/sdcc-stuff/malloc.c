@@ -19,7 +19,7 @@ void print_b(struct mem_block_t b) {
 	PRINTd(b.next);
 }
 void print_bt(void) {
-	for (int i=0;i<5;i++) {
+	for (int i=0;i<MAX_BLOCKS;i++) {
 		puts("\nblock ");putdec(i);newline();
 		print_b(block_table[i]);
 	}
@@ -34,12 +34,14 @@ u16 new_block_idx(void) {
 }
 
 void* malloc(u16 size) {
+	u16 idx=0;
 	struct mem_block_t* block = &block_table[0];
 
 	// find a block
 	while (block->next != 0) {
 		if (block->size >= size && block->free)
 			break;
+		idx = block->next;
 		block = &block_table[block->next];
 	}
 
@@ -47,6 +49,10 @@ void* malloc(u16 size) {
 	if (!block->free) {
 		puts("==== block aint free! ====\n");
 		print_b(*block);
+		PRINTd(idx);
+		puts("==== block table ====\n");
+		/* print_bt(); */
+		io_debug=0;
 		return NULL;
 	}
 
@@ -81,10 +87,13 @@ void* malloc(u16 size) {
 	block_table[new_idx] = split_block;
 
 	// TODO: make an actuall error and move the check
-	if (split_block.ptr - &heap > HEAP_SIZE) {
-		__asm
-			out (4), A
-		__endasm;
+	if ((u16)(split_block.ptr - &heap) > HEAP_SIZE) {
+		puts("out of memory!\n");
+		PRINTd(split_block.ptr - &heap);
+		/* __asm */
+		/* 	out (4), A */
+		/* __endasm; */
+		return NULL;
 	}
 
 	return block->ptr;
