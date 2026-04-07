@@ -201,7 +201,7 @@ void on_ret(u16 from, u16 to) {
 		for (int i=0;i<call_stack_size;i++)
 			putc(' ',stdout);
 		printf(" ret %s -> ", addr2str(from));
-		printf("%s s=%d\n", addr2str(to), call_stack_size);
+		printf("%s s=%d %s\n", addr2str(to), call_stack_size, call_stack[call_stack_size-1].is_int?"INT":"");
 	}
 }
 
@@ -222,7 +222,9 @@ void emu_tick() {
 
 	// detect jumps that are secretly returns
 	// ex. `jp (HL)` when HL is the caller return address
-	if (call_stack_size > 0 && ctx.PC == call_stack[call_stack_size-1].from) {
+	// also it ignores sneaky returns from interrupts bc interrupts are handwritten
+	if (call_stack_size > 0 && ctx.PC == call_stack[call_stack_size-1].from && !call_stack[call_stack_size-1].is_int) {
+		printf("sneaky...\n");
 		on_ret(ctx.PC, call_stack[call_stack_size-1].from);
 	}
 }
@@ -296,7 +298,8 @@ char* get_cpu_state() {
     sprintf(debug_str,
         "PC=%s dump='%6s' decode='%s'             \n"
         "AF =%04X BC =%04X DE =%04X HL =%04X IX =%04X IY =%04X SP =%04X\n"
-        "AF'=%04X BC'=%04X'DE =%04X HL'=%04X IX'=%04X IY'=%04X SP'=%04X\n"
+        "AF'=%04X BC'=%04X DE'=%04X HL'=%04X IX'=%04X IY'=%04X SP'=%04X\n"
+        "IFF1=%d IFF2=%d I=%02X R=%02X\n"
         "Stack: %s\n"
         ,
         addr2str(ctx.PC),
@@ -319,6 +322,8 @@ char* get_cpu_state() {
         ctx.R2.wr.IX,
         ctx.R2.wr.IY,
         ctx.R2.wr.SP,
+
+		ctx.IFF1, ctx.IFF2, ctx.I, ctx.R,
 
         stack_str
     );

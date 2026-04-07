@@ -1,6 +1,7 @@
 #include "front_rl.h"
 #include <pthread.h>
 #include "emu.h"
+#include "debug.h"
 
 bool draw_fps;
 
@@ -41,7 +42,7 @@ u8 get_kb_row(u8 row) {
 
 void* thread_task(void* arg) {
 	SetTraceLogLevel(LOG_WARNING);
-	InitWindow(640,480,"mmmmm puter...");
+	InitWindow(640*2,480*2,"mmmmm puter...");
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
 
 	Font font = LoadFont("PrintChar21.ttf");
@@ -97,6 +98,29 @@ void* thread_task(void* arg) {
             0,
             WHITE
         );
+
+		update_mem_snapshot();
+		update_watchvar_str();
+		/* printf("\x1b[H%s\n",watchvar_str_buf); */
+		if (true){
+			int x=0;
+			int y=0;
+			for (int i=0;i<sizeof(watchvar_str_buf);i++) {
+				char c = watchvar_str_buf[i];
+				if (c == '\n') {
+					x=0;
+					y+=8;
+					continue;
+				} else if (c == 0) {
+					break;
+				}
+				int sx = x*2+24;
+				int sy = y*2+24;
+				DrawRectangle(sx-2,sy-2,16+4,16+4,BLACK);
+				DrawTextCodepoint(font, c, (Vector2){sx,sy}, 8*2, YELLOW);
+				x += 8;
+			}
+		}
 
 		EndDrawing();
 	}

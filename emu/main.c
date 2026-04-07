@@ -4,6 +4,7 @@
 #include "emu.h"
 #include "disks.h"
 #include "front_rl.h"
+#include "debug.h"
 #include <signal.h>
 #include <unistd.h>
 #include <time.h>
@@ -14,7 +15,9 @@
 void load_debug_labels(const char* filename) {
     FILE* f = fopen(filename, "r");
     if (!f) return;
-    debug_labels_count = 0;
+    debug_labels[0].addr = 0;
+    strcpy(debug_labels[0].name,"__zero");
+    debug_labels_count = 1;
     while (debug_labels_count < 1024 &&
            fscanf(f, "%hx %63s", &debug_labels[debug_labels_count].addr,
                                   debug_labels[debug_labels_count].name) == 2) {
@@ -125,9 +128,9 @@ int main(int argc, char** argv) {
             load_debug_labels(argv[++i]);
         }
         else if (!strcmp(argv[i],"-addr2str")) {
-            int inp = atoi(argv[++i]);
+            int inp = strtol(argv[++i],NULL,16);
             u16 addr = (u16)inp;
-            printf("%d -> $%04X -> %s\n",inp,addr,addr2str(addr));
+            printf("%d/$%04X -> %s\n",inp,addr,addr2str(addr));
             exit(0);
         }
         else if (!strcmp(argv[i],"-mhz")) target_mhz = atof(argv[++i]);
@@ -140,6 +143,7 @@ int main(int argc, char** argv) {
         else if (!strcmp(argv[i],"-dcs")) dbg_callstack = true;
         else if (!strcmp(argv[i],"-fps")) draw_fps = true;
         else if (!strcmp(argv[i],"-disk")) add_disk(argv[++i]);
+        else if (!strcmp(argv[i],"-wv")) add_watchvar(parse_watchvar_str(argv[++i]));
     }
 
 

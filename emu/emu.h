@@ -34,6 +34,7 @@ extern bool dbg_ioread;
 extern bool dbg_iowrite;
 extern bool dbg_callstack;
 
+extern bool dont_log_memreads; // overrides dbg_memread
 
 void setup_sector_table();
 
