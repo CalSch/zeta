@@ -145,6 +145,29 @@ disk!!!!!!!
 	- bit 1: can you write to it
 	- bits 2-7: idk bro there might be more later
 
+things to write about:
+- label parsing
+- regulating clock speed
+- fancy call stack
+
+- variable watching
+
+cli args:
+- `-rom <path>`: path to rom file
+- `-labels <path>`: path to labels file
+- `-addr2str <addr>`: convert `addr` (in `%hx` format) into a label-relative string, and exit
+- `-mhz <int>`: set target megahertz (default is 10)
+- `-bc <int>`: set batched cycles (default is 10k)
+- `-dstate`: turn on debug state (prints the CPU state for every instruction)
+- `-dmr`: debug memory reads
+- `-dmw`: debug memory writes
+- `-din`: debug I/O reads
+- `-dout`: debug I/O writes
+- `-dcs`: debug changes to call stack
+- `-fps`: draw the FPS
+- `-disk <path>`: add a disk who's contents are in the specified file (will open with read/write perms!)
+- `-wv <name>:<type>:<count>:<addr>`: add a watch variable
+
 
 
 
@@ -169,3 +192,4 @@ todo list i guess. i'll probably forget that it's here:
 - log colors
 - fix debug io r/w stuff
 - text mode colors
+
