@@ -8,8 +8,11 @@ def parse_map(name: str):
         for line in f:
             m = re.match(r'\s+([0-9A-F]+)\s+([\w]+)', line)
             if m:
+                label = m.group(2)
+                addr = int(m.group(1), 16)
+                label = label.removeprefix("s_")
                 map_labels[m.group(2)] = int(m.group(1), 16)
-                # print(m.groups())
+                # print(m.groups(), '->', label, addr)
 
 lst_labels = {}
 

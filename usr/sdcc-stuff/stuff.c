@@ -13,14 +13,14 @@ void clear(void) __naked {
 	__endasm;
 }
 void newline(void) {
-	io_stdio='\n';
+	/* io_stdio='\n'; */
 	cur = cur - (cur%TXT_COLS) + TXT_COLS;
 }
 void putc(char c) {
 	if (c=='\n')
 		newline();
 	else {
-		io_stdio=c;
+		/* io_stdio=c; */
 		if (cur<sizeof(screen_buf))
 			screen_buf[cur++] = c;
 	}
