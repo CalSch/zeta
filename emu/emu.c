@@ -41,7 +41,7 @@ u8 memread(int param, u16 addr) {
 	u16 hw_sect = sector_table[sect];
 
 	if (dbg_memread && !dont_log_memreads)
-		printf(" read($%04x / %5d) -> ", addr,addr);
+		printf(" read(%s) -> ", addr2str(addr));
 
 	if (hw_sect == 0) {
 		val = rom[rel_addr];
@@ -70,11 +70,12 @@ void memwrite(int param, u16 addr, u8 val) {
 	u16 hw_sect = sector_table[sect];
 
 	if (dbg_memwrite)
-		printf("write($%04x / %5d, $%02x / %3d) -> ", addr,addr, val,val);
+		printf("write(%s, $%02x / %3d) -> ", addr2str(addr), val,val);
 	fflush(stdout);
 
 	if (hw_sect == 0) {
 		strcpy(dev,"rom");
+		printf("WARNING: just tried to write to ROM!\n");
 	} else if (512 <= hw_sect && hw_sect <= 1023) {
 		ram[rel_addr-((hw_sect-512)*SECT_SIZE)] = val;
 		strcpy(dev,"ram");
@@ -156,6 +157,12 @@ void iowrite(int param, u16 addr, u8 val) {
 	} else if (addr == 5) {
 		strcpy(dev,"disk");
 		disk_iowrite(val);
+	} else if (addr == 6) {
+		if (val == 1) {
+			if (dbg_callstack)
+				printf("doing a manual return\n");
+			on_ret(ctx.PC,-1);
+		}
 	}
 
 	if (dbg_iowrite)

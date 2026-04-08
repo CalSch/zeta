@@ -56,6 +56,7 @@ typedef struct {
 } call_t;
 extern call_t call_stack[CALLSTACK_SIZE];
 extern u16 call_stack_size;
+void on_ret(u16 from, u16 to); //TODO: also add on_call and others maybe?
 
 typedef struct {
     u16 addr;
